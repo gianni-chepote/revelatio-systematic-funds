@@ -1,0 +1,10 @@
+FINS5545 FinTech Project - Part B
+Student: Gianni Chepote (z5736927)
+
+Live Streamlit app:
+https://revelatio-systematic-funds-ke7fp66vug2kkd6xenrfsw.streamlit.app
+
+Public GitHub repository:
+https://github.com/gianni-chepote/revelatio-systematic-funds
+
+Report: report/report_z5736927.pdf

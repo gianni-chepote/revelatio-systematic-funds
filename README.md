@@ -1,11 +1,13 @@
-# FinTech Project - Part B
+# Revelatio - Systematic Multi-Asset Funds (Part B)
 
-> FIRST: rename this folder to <yourZID>_projectB (for example z1234567_projectB)
-> and move it into fins-agent/fins2026/. The folder name carrying your zID is your
-> submission.
+**Student:** Gianni Chepote (z5736927) - FINS5545
 
-Part B: funds, sentiment, and the app (DFF Stations 3-4). This folder is also your
-public GitHub repository; the app entrypoint is streamlit_app.py at the root.
+**Live Streamlit app:** https://revelatio-systematic-funds-ke7fp66vug2kkd6xenrfsw.streamlit.app
+
+**Public GitHub repository:** https://github.com/gianni-chepote/revelatio-systematic-funds
+
+Part B: funds, sentiment, and the app (DFF Stations 3-4). The app entrypoint is
+`streamlit_app.py` at the folder root, which is also the public GitHub repository.
 
 ## How to run
 
