@@ -1,0 +1,15 @@
+# Revelatio app configuration. The theme mirrors the report's house style
+# (parchment ground, iron-gall ink, one gilded accent) so the app and the
+# exhibits read as one product.
+
+[theme]
+primaryColor = "#B8860B"            # gilt - the single accent
+backgroundColor = "#FDF1E6"         # parchment
+secondaryBackgroundColor = "#F6E8D8"  # vellum - cards, sidebars
+textColor = "#241C15"               # iron-gall ink
+font = "sans serif"
+
+[server]
+# The deployed app reads precomputed artifacts from results/; it never scores
+# sentiment or runs a backtest at runtime.
+headless = true

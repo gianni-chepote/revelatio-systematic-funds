@@ -1,0 +1,5 @@
+method,variant,mean_delta,effective_n,mean_max_weight,mean_top5_weight,mean_turnover
+min_variance,sample,,9.762495,0.186175,0.633648,0.151807
+min_variance,shrunk,0.054958,12.661106,0.14484,0.538266,0.128494
+max_sharpe,sample,,4.289388,0.401247,0.894548,0.33725
+max_sharpe,shrunk,0.054958,5.223473,0.348698,0.845788,0.326112

@@ -1,0 +1,9 @@
+half_life,fund,sharpe
+2,Combined_MinVariance,0.31298276030312505
+2,Combined_MaxSharpe,0.9172674691397013
+5,Combined_MinVariance,0.32536377837758634
+5,Combined_MaxSharpe,0.9303250444196273
+10,Combined_MinVariance,0.33122482305336814
+10,Combined_MaxSharpe,0.9378037394160206
+21,Combined_MinVariance,0.33405770836818766
+21,Combined_MaxSharpe,0.9439281470968007
