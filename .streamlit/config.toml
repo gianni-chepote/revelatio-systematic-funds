@@ -1,13 +1,18 @@
-# Revelatio app configuration. The theme mirrors the report's house style
-# (parchment ground, iron-gall ink, one gilded accent) so the app and the
-# exhibits read as one product.
+# Revelatio app configuration. Dark navy ground with one indigo accent, matching
+# the CSS tokens at the top of streamlit_app.py, so Streamlit's own widgets
+# (tables, tabs, sliders, inputs) read as part of the same product.
 
 [theme]
-primaryColor = "#B8860B"            # gilt - the single accent
-backgroundColor = "#FDF1E6"         # parchment
-secondaryBackgroundColor = "#F6E8D8"  # vellum - cards, sidebars
-textColor = "#241C15"               # iron-gall ink
-font = "sans serif"
+base = "dark"
+primaryColor = "#5B6CF0"            # indigo - the single accent
+backgroundColor = "#07071F"         # deep navy
+secondaryBackgroundColor = "#10102E"  # panels, inputs, table headers
+textColor = "#F5F6FA"               # off-white
+# Poppins everywhere, including Streamlit's canvas-drawn tables and widgets.
+font = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap, sans-serif"
+headingFont = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap, sans-serif"
+baseFontWeight = 400
+headingFontWeights = 600
 
 [server]
 # The deployed app reads precomputed artifacts from results/; it never scores
