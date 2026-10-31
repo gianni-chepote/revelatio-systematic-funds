@@ -17,6 +17,7 @@ APP = ROOT / "streamlit_app.py"
 REQUIRED = [
     ROOT / "results" / "data" / "fund_returns.csv",
     ROOT / "results" / "data" / "benchmark_returns.csv",
+    ROOT / "results" / "data" / "sp500_returns.csv",
     ROOT / "results" / "data" / "fund_weights.csv",
     ROOT / "results" / "tables" / "performance_metrics.csv",
 ]

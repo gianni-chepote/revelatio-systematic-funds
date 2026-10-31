@@ -979,6 +979,13 @@ def main() -> None:
         sys.exit(1)
     print("\nSteps 1-5 core + Step 8 innovation (shrinkage, two-stage, decay) OK.\n")
 
+    # The app's S&P 500 benchmark (SPY, dividends included), aligned to the same
+    # out-of-sample days as the funds just written. Needs network access.
+    import build_sp500_benchmark
+    if build_sp500_benchmark.main() != 0:
+        print("  FAILED: S&P 500 benchmark build did not pass.")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

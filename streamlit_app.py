@@ -360,6 +360,56 @@ def inject_css() -> None:
     .finding h4 {{margin:0; padding:0; font-size:1.2rem; line-height:1.3; align-self:start;}}
     .finding p {{margin:0;}}
 
+    .findings.two {{grid-template-columns:repeat(2, minmax(0, 1fr));}}
+    .center-note {{text-align:center; max-width:820px; margin:1rem auto 0 !important;}}
+    .pos {{color:var(--pos);}} .neg {{color:var(--neg);}}
+
+    /* about: method cards (keyed Streamlit containers so st.latex sits inside) */
+    [class*="st-key-method_"] {{background:var(--panel); border:1px solid var(--line);
+      border-radius:20px; padding:1.3rem 1.2rem 0.6rem; min-height:11.5rem;
+      justify-content:space-between;}}
+    [class*="st-key-method_"] .stMarkdown, [class*="st-key-method_"] p,
+    [class*="st-key-method_"] .stat-label {{text-align:center !important;}}
+    [class*="st-key-method_"] .katex {{color:var(--ink); font-size:1.15em;}}
+    .method-blurb {{min-height:3.2em; margin:0.5rem 0 0 !important;}}
+
+    /* about: sentiment pipeline */
+    .pipeline {{display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:0.8rem;}}
+    .pipeline .step {{background:var(--panel); border:1px solid var(--line);
+      border-radius:18px; padding:1.1rem 1rem; text-align:center; position:relative;}}
+    .pipeline .step + .step::before {{content:"→"; position:absolute; left:-0.72rem;
+      top:50%; transform:translateY(-50%); color:var(--accent); font-weight:600;}}
+    .pipeline .n {{display:inline-flex; width:1.7rem; height:1.7rem; border-radius:50%;
+      align-items:center; justify-content:center; background:rgba(91,108,240,0.18);
+      color:#C9CEFF; font-size:0.8rem; font-weight:600;}}
+    .pipeline b {{display:block; margin:0.5rem 0 0.3rem; font-weight:600;}}
+    .pipeline p {{margin:0; color:var(--muted); font-size:0.85rem; line-height:1.5;}}
+
+    /* about: extensions table */
+    .ext-table {{background:var(--panel); border:1px solid var(--line); border-radius:20px;
+      overflow:hidden;}}
+    .ext-row {{display:grid; grid-template-columns:2.2fr 1fr 1fr 1.4fr; gap:1rem;
+      align-items:center; padding:1rem 1.4rem; border-top:1px solid var(--line);}}
+    .ext-row.head {{border-top:none; color:var(--muted); font-size:0.72rem;
+      text-transform:uppercase; letter-spacing:0.07em; font-weight:500;}}
+    .ext-row span:not(:first-child) {{text-align:center;}}
+    .ext-row b {{display:block; font-weight:600;}}
+    .ext-row em {{display:block; font-style:normal; color:var(--muted); font-size:0.85rem;
+      margin-top:0.2rem;}}
+    .ext-row .verdict {{color:var(--muted); font-size:0.88rem;}}
+
+    /* about: limitations */
+    .limits {{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.9rem;}}
+    .limit {{background:var(--panel); border:1px solid var(--line);
+      border-left:3px solid var(--neg); border-radius:16px; padding:1.1rem 1.2rem;}}
+    .limit b {{font-weight:600;}}
+    .limit p {{margin:0.35rem 0 0; color:var(--muted); font-size:0.88rem; line-height:1.55;}}
+
+    /* about: stack chips */
+    .chips {{display:flex; flex-wrap:wrap; justify-content:center; gap:0.6rem;}}
+    .chips span {{border:1px solid var(--line-accent); background:rgba(91,108,240,0.08);
+      border-radius:999px; padding:0.4rem 1rem; font-size:0.88rem;}}
+
     /* fund cards: blurbs reserve two lines so stats, pills and buttons line up */
     .fund-blurb {{margin:0 !important; padding:0.7rem 0 0.5rem; min-height:4.4em;
       box-sizing:border-box;}}
@@ -384,6 +434,12 @@ def inject_css() -> None:
       .findings {{grid-template-columns:1fr; grid-template-rows:none; row-gap:1rem;}}
       .finding {{grid-row:auto; grid-template-rows:none;}}
       .fund-blurb {{min-height:0;}}
+      .findings.two, .limits, .pipeline {{grid-template-columns:1fr;}}
+      .pipeline .step + .step::before {{content:"↓"; left:50%; top:-0.85rem;
+        transform:translateX(-50%);}}
+      .ext-row {{grid-template-columns:1fr 1fr; }}
+      .ext-row span:first-child, .ext-row .verdict {{grid-column:1 / -1; text-align:center;}}
+      .ext-row.head span:first-child, .ext-row.head span:last-child {{display:none;}}
       .spec {{border-left:none !important; border-top:1px solid var(--line) !important;}}
       .spec:first-child {{border-top:none !important;}}
       .metrics-card .m.bench {{grid-column:1 / -1; border-left:none;
@@ -735,9 +791,7 @@ def page_home(d: dict) -> None:
         ("No look-ahead", "A probe that lets the model peek one day ahead changes the "
                           "results, so the honest run is not peeking"),
     ]
-    st.markdown("<div class='spec-grid'>" + "".join(
-        f"<div class='spec'><div class='stat-label'>{k}</div><p>{v}</p></div>" for k, v in spec)
-        + "</div>", unsafe_allow_html=True)
+    st.markdown(_spec_grid(spec), unsafe_allow_html=True)
 
     st.markdown("<hr class='rule'>", unsafe_allow_html=True)
     section("What the study found")
@@ -802,9 +856,9 @@ def page_funds(d: dict) -> None:
         {"Annual return": "{:.1%}", "Annual volatility": "{:.1%}",
          "Sharpe": "{:.2f}", "Max drawdown": "{:.1%}"}),
         hide_index=True, width="stretch", height=35 * (len(rows) + 1) + 3)
-    st.markdown("<p class='source'>Source: results/tables/performance_metrics.csv, "
-                "benchmark_comparison.csv, sp500_returns.csv. A fund beats a benchmark "
-                "when its Sharpe ratio is higher over the same days.</p>",
+    st.markdown("<p class='source'>Source: out-of-sample backtest, Jan 2021 – Dec 2023; "
+                "S&amp;P 500 via SPY with dividends. A fund beats a benchmark when its "
+                "Sharpe ratio is higher over the same days.</p>",
                 unsafe_allow_html=True)
     for family in ("Combined", "Equity", "Crypto"):
         st.markdown("<hr class='rule'>", unsafe_allow_html=True)
@@ -863,8 +917,6 @@ def page_detail(d: dict, fund: str) -> None:
 
     t_over, t_perf, t_hold = st.tabs(["Overview", "Performance", "Holdings"])
     with t_over:
-        st.markdown("**Why this fund?**")
-        st.markdown(ticks(meta["good"]), unsafe_allow_html=True)
         st.markdown("**Investment objective**")
         st.markdown(f"<p class='descr'>{meta['objective']}</p>", unsafe_allow_html=True)
         st.markdown(f"<div class='approp'><h4>Is this fund right for you?</h4>"
@@ -880,8 +932,8 @@ def page_detail(d: dict, fund: str) -> None:
             "Value": [f"{mm['ann_return']:.1%}", f"{mm['ann_vol']:.1%}",
                       f"{mm['sharpe']:.2f}", f"{mm['max_drawdown']:.1%}"]}),
             hide_index=True, width="stretch")
-        st.markdown("<p class='source'>Source: results/data/fund_returns.csv, "
-                    "benchmark_returns.csv, sp500_returns.csv.</p>", unsafe_allow_html=True)
+        st.markdown("<p class='source'>Source: out-of-sample backtest, Jan 2021 – Dec 2023."
+                    "</p>", unsafe_allow_html=True)
     with t_hold:
         fig, hold, latest = holdings_fig(fund, d)
         st.markdown(f"**Current holdings** (as at {latest:%d %b %Y}, {len(hold)} positions)")
@@ -898,8 +950,8 @@ def page_detail(d: dict, fund: str) -> None:
         st.dataframe(hold.assign(weight=(hold.weight).map("{:.1%}".format))
                      .rename(columns={"ticker": "Holding", "weight": "Weight"}),
                      hide_index=True, width="stretch", height=280)
-        st.markdown("<p class='source'>Source: results/data/fund_weights.csv "
-                    "(latest rebalance).</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='source'>Source: target weights at the {latest:%d %b %Y} "
+                    "rebalance.</p>", unsafe_allow_html=True)
 
     st.markdown(f"<div class='foot'>{OOS}. Figures are precomputed and traceable to "
                 "source. Past performance is not a reliable indicator of future results.</div>",
@@ -960,9 +1012,9 @@ def page_sentiment(d: dict) -> None:
     figb.update_yaxes(title="Sharpe ratio", range=[0, float(piv.max().max()) * 1.18])
     figb.update_layout(barmode="group", bargap=0.35, bargroupgap=0.08)
     st.plotly_chart(_style(figb, 320), use_container_width=True, config=PLOTLY_CFG)
-    st.markdown("<p class='source'>The tilt lowered the Sharpe of both funds - an "
-                "honest negative result. Source: sector_sentiment_index.csv, "
-                "fusion_comparison.csv.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='source'>The tilt lowered the Sharpe of both funds, a negative "
+                "result reported as found. Source: out-of-sample backtest, Jan 2021 – "
+                "Dec 2023.</p>", unsafe_allow_html=True)
 
 
 def page_allocate(d: dict) -> None:
@@ -1027,30 +1079,203 @@ def page_allocate(d: dict) -> None:
     fig.update_yaxes(title="Value of $1", tickprefix="$")
     st.plotly_chart(_style(fig), use_container_width=True, config=PLOTLY_CFG)
     st.markdown("<p class='source'>Net line is what you would keep after the fixed "
-                f"{MGMT_FEE:.2f}% fee. Source: fund_returns.csv, benchmark_returns.csv, "
-                "sp500_returns.csv.</p>",
+                f"{MGMT_FEE:.2f}% fee. Source: out-of-sample backtest, Jan 2021 – "
+                "Dec 2023.</p>",
                 unsafe_allow_html=True)
 
 
 def page_about(d: dict) -> None:
-    hero(d, "About", "Methodology, in plain terms",
-         "How the funds are built, tested and benchmarked.")
+    hero(d, "About", "Methodology, in detail",
+         "Everything needed to check the numbers: the data, the rules, the tests, "
+         "and where the study falls short.")
+    m, ext = d["metrics"], _extension_tables()
+    n_days = int(m["oos_days"].iloc[0])
+    w = d["weights"]
+    n_rebal = w.loc[w.fund == FUNDS[0], "rebalance_date"].nunique()
+
+    # 1. Data
+    section("The data")
+    st.markdown(_spec_grid([
+        ("Stocks", "50 US large caps across 10 sectors, daily adjusted closes "
+                   "(dividends included), 2020–2023"),
+        ("Crypto", "10 coins: BTC, ETH, ADA, BCH, EOS, ETC, LTC, TRX, XLM, XRP"),
+        ("News", "About 147,000 headlines on the 50 stocks after removing exact "
+                 "duplicates, each aligned to its trading day"),
+        ("Calendars", "Crypto trades every day, so its returns are computed on its own "
+                      "calendar first, then lined up to stock trading days"),
+    ]), unsafe_allow_html=True)
+
+    # 2. Methods, each with its optimisation problem
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("Three ways to set the weights")
+    methods = (
+        ("Minimum variance", "The lowest-risk mix. Ignores expected returns entirely.",
+         r"\min_{w}\; w^\top \Sigma\, w"),
+        ("Maximum Sharpe", "The best return per unit of risk (the tangency portfolio).",
+         r"\max_{w}\; \frac{w^\top \mu - r_f}{\sqrt{w^\top \Sigma\, w}}"),
+        ("Risk parity", "Every holding contributes the same share of total risk.",
+         r"w_i\,(\Sigma w)_i = \tfrac{1}{n}\, w^\top \Sigma\, w \;\; \forall i"),
+    )
+    cols = st.columns(3)
+    for i, (col, (name, blurb, eq)) in enumerate(zip(cols, methods)):
+        with col.container(key=f"method_{i}"):
+            st.markdown(f"<div class='stat-label'>{name}</div>"
+                        f"<p class='descr method-blurb'>{blurb}</p>", unsafe_allow_html=True)
+            st.latex(eq)
     st.markdown(
-        "<p class='descr' style='max-width:760px;margin:0 auto 1.4rem;text-align:center'>Each fund is a systematic rule over "
-        "50 US large-cap stocks and 10 cryptocurrencies. Weights are rebuilt on the "
-        "first trading day of each month from the trailing year of returns, using only "
-        "data available before that date - a walk-forward, out-of-sample backtest with "
-        "no look-ahead. Minimum-variance targets the smoothest ride; maximum-Sharpe "
-        "targets the best return per unit of risk; the two-stage variants build a stock "
-        "sleeve and a crypto sleeve separately, then blend them. Every fund is scored "
-        "against an equal-weight basket of the same 50 stocks.</p>",
+        "<p class='descr center-note'>All three are long-only and fully invested "
+        "(w<sub>i</sub> ≥ 0, Σ w<sub>i</sub> = 1). μ and Σ are the sample mean and "
+        "covariance of daily returns over the estimation window; r<sub>f</sub> = 0. "
+        "Solved with SciPy (SLSQP for the first two; risk parity via its convex "
+        "log-barrier form).</p>", unsafe_allow_html=True)
+
+    # 3. Backtest design
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("How the backtest runs")
+    st.markdown(_spec_grid([
+        ("Estimation window", "Rolling 252 trading days (one year), re-fitted at every "
+                              "rebalance"),
+        ("Rebalance rule", f"First trading day of each month, {n_rebal} times"),
+        ("Between rebalances", "Weights held at their monthly targets; daily fund "
+                               "return = w·r"),
+        ("Live period", f"4 Jan 2021 to 29 Dec 2023, {n_days} trading days; 2020 is "
+                        "training only"),
+        ("Annualising", "Mean daily return × 252; volatility × √252"),
+        ("Sharpe ratio", "Annualised return ÷ annualised volatility, risk-free rate 0%"),
+        ("Max drawdown", "Largest fall from a running peak in the growth of $1"),
+        ("Look-ahead probe", "Shifting the window one day into the future changes the "
+                             "results, so the honest run uses past data only"),
+    ]), unsafe_allow_html=True)
+
+    # 4. Benchmarks
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("What counts as beating the market")
+    bench_sr, sp_sr = annualise(d["bench"])["sharpe"], annualise(d["sp500"])["sharpe"]
+    st.markdown(
+        "<div class='findings two'>"
+        f"<div class='finding'><div class='stat-value'>{bench_sr:.2f}</div>"
+        "<h4>Equal-weight market (1/N)</h4><p class='descr'>All 50 stocks at equal "
+        "weight, reset on the same monthly schedule. It uses the same universe and the "
+        "same days, so it is the fair test of whether optimising adds anything.</p></div>"
+        f"<div class='finding'><div class='stat-value'>{sp_sr:.2f}</div>"
+        "<h4>S&amp;P 500 (SPY)</h4><p class='descr'>The index a real investor would "
+        "otherwise buy, with dividends included, over the same days. Shown as the "
+        "everyday yardstick.</p></div></div>"
+        "<p class='descr center-note'>Figures are Sharpe ratios. A fund beats a benchmark "
+        f"when its Sharpe ratio is higher over the same {n_days} days. Both benchmarks "
+        "hold stocks only, so part of a combined fund's edge comes from holding crypto "
+        "at all.</p>", unsafe_allow_html=True)
+
+    # 5. Sentiment pipeline
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("From headlines to a trading signal")
+    steps = [("Score", "Each headline gets a VADER compound score from −1 to +1"),
+             ("Aggregate", "Daily score per stock; a day with no news scores 0"),
+             ("Sector index", "Equal-weight average of the five stocks in each sector"),
+             ("Lag", "Only sentiment from before the rebalance day is used, averaged "
+                     "over the prior 21 trading days"),
+             ("Tilt", "Each stock's weight × max(0, 1 + 0.5·z), where z is its "
+                      "sector's standardised score; crypto weights unchanged")]
+    st.markdown("<div class='pipeline'>" + "".join(
+        f"<div class='step'><span class='n'>{k}</span><b>{t}</b><p>{x}</p></div>"
+        for k, (t, x) in enumerate(steps, start=1)) + "</div>", unsafe_allow_html=True)
+
+    # 6. Extensions, before -> after, read from the result tables
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("Extensions tested")
+    sh, ts, dc = ext["shrink"], ext["two"], ext["decay"]
+    ts_params = int(ts["cross_asset_cov_params"].max()), int(ts["cross_asset_cov_params"].min())
+    rows = [
+        ("Ledoit-Wolf shrinkage", "Pulls the noisy sample covariance toward a simple target",
+         sh.loc[("min_variance", "sample"), "sharpe"], sh.loc[("min_variance", "shrunk"), "sharpe"],
+         sh.loc[("max_sharpe", "sample"), "sharpe"], sh.loc[("max_sharpe", "shrunk"), "sharpe"],
+         "Helped minimum variance; max-Sharpe roughly flat"),
+        ("Two-stage allocation", f"Builds stock and crypto sleeves first, then blends them: "
+                                 f"{ts_params[0]:,} cross-asset covariance terms become "
+                                 f"{ts_params[1]}",
+         ts.loc[("min_variance", "one_stage"), "sharpe"], ts.loc[("min_variance", "two_stage"), "sharpe"],
+         ts.loc[("max_sharpe", "one_stage"), "sharpe"], ts.loc[("max_sharpe", "two_stage"), "sharpe"],
+         "About a tie with far fewer estimates"),
+        ("Sentiment decay", "Old news fades over a 5-day half-life instead of dropping "
+                            "straight to 0",
+         dc.loc[("Combined_MinVariance", "sentiment_neutral0"), "sharpe"],
+         dc.loc[("Combined_MinVariance", "sentiment_decay"), "sharpe"],
+         dc.loc[("Combined_MaxSharpe", "sentiment_neutral0"), "sharpe"],
+         dc.loc[("Combined_MaxSharpe", "sentiment_decay"), "sharpe"],
+         "Softened the tilt's damage, still below no tilt"),
+    ]
+
+    def arrow(a, b):
+        tone = "pos" if b > a + 0.005 else "neg" if b < a - 0.005 else ""
+        return f"{a:.2f} → <span class='{tone}'>{b:.2f}</span>"
+
+    st.markdown(
+        "<div class='ext-table'><div class='ext-row head'><span>Extension</span>"
+        "<span>Balanced (min-var)</span><span>High Growth (max-Sharpe)</span>"
+        "<span>Verdict</span></div>" + "".join(
+            f"<div class='ext-row'><span><b>{name}</b><em>{what}</em></span>"
+            f"<span>{arrow(a1, b1)}</span><span>{arrow(a2, b2)}</span>"
+            f"<span class='verdict'>{verdict}</span></div>"
+            for name, what, a1, b1, a2, b2, verdict in rows) + "</div>"
+        "<p class='descr center-note'>Sharpe ratios, before → after, on the combined "
+        "funds. Each extension was chosen before seeing its result and is reported "
+        "either way; the headline funds keep the plain versions.</p>",
         unsafe_allow_html=True)
-    st.markdown(f"<div class='band'>{OOS}. All figures are precomputed from the "
-                "backtest and read from committed files.</div>",
-                unsafe_allow_html=True)
-    st.markdown("<p class='foot'>Educational project, not investment advice. Past "
-                "performance is not a reliable indicator of future results.</p>",
-                unsafe_allow_html=True)
+
+    # 7. Limitations
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("Where the study falls short")
+    st.markdown("<div class='limits'>" + "".join(
+        f"<div class='limit'><b>{t}</b><p>{x}</p></div>" for t, x in [
+            ("No trading costs", "Monthly rebalancing is free in the backtest. Costs and "
+                                 "slippage would lower every fund, the high-turnover "
+                                 "ones most."),
+            ("A fixed stock list", "The 50 names are fixed for the whole sample, not "
+                                   "point-in-time index membership."),
+            ("One short period", "Three years out of sample covers one market cycle: the "
+                                 "2022 sell-off and the 2023 rebound."),
+            ("Risk-free rate of 0%", "Cash yielded several percent in 2023, so every "
+                                     "Sharpe ratio here is higher than it would be "
+                                     "against a cash hurdle."),
+            ("Noisy expected returns", "Max-Sharpe relies on one year's sample means, "
+                                       "which are unstable; it is the most concentrated "
+                                       "method."),
+            ("Weekend crypto moves", "Aligning coins to stock trading days drops "
+                                     "weekend-only moves, by design."),
+        ]) + "</div>", unsafe_allow_html=True)
+
+    # 8. Stack and reproducibility
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("Built with")
+    st.markdown(
+        "<div class='chips'>" + "".join(f"<span>{t}</span>" for t in (
+            "Python 3.13", "pandas", "NumPy", "SciPy", "NLTK · VADER", "Plotly",
+            "Streamlit", "pytest")) + "</div>"
+        "<p class='descr center-note'>One script rebuilds every table and figure from the "
+        "raw data and checks its own counts. Automated tests cover the outputs and every "
+        "page of this app, which only reads precomputed results.</p>"
+        f"<div style='text-align:center;margin-top:1rem'><a class='gh-pill' href='{REPO_URL}' "
+        "target='_blank' rel='noopener'>View the code on GitHub</a></div>",
+        unsafe_allow_html=True)
+    st.markdown("<p class='foot' style='text-align:center'>Educational project, not "
+                "investment advice. Past performance is not a reliable indicator of future "
+                "results.</p>", unsafe_allow_html=True)
+
+
+@st.cache_data(ttl=86_400, show_spinner=False)
+def _extension_tables() -> dict:
+    """Before/after tables for the extensions shown on About."""
+    return {
+        "shrink": pd.read_csv(TABLES / "shrinkage_comparison.csv").set_index(["method", "variant"]),
+        "two": pd.read_csv(TABLES / "two_stage_comparison.csv").set_index(["method", "structure"]),
+        "decay": pd.read_csv(TABLES / "decay_comparison.csv").set_index(["fund", "variant"]),
+    }
+
+
+def _spec_grid(items) -> str:
+    return ("<div class='spec-grid'>" + "".join(
+        f"<div class='spec'><div class='stat-label'>{k}</div><p>{v}</p></div>"
+        for k, v in items) + "</div>")
 
 
 PAGES = {"Home": page_home, "Funds": page_funds, "Sentiment": page_sentiment,
