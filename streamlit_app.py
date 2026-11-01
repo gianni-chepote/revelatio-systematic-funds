@@ -42,8 +42,8 @@ MUTED = "#A3A7C2"
 LINE = "rgba(255,255,255,0.08)"
 POS = "#8BD17C"
 NEG = "#F07A7A"
-BENCH_GREY = "#7C80A6"     # equal-weight market line
-SP500_TINT = "#D9C58F"     # S&P 500 line - muted gold, distinct from the accent
+BENCH_GREY = "#6E7391"     # equal-weight market line - muted slate
+SP500_TINT = "#9E9070"     # S&P 500 line - muted sand; both stay quiet beside the fund
 FONT = "Poppins"
 REPO_URL = "https://github.com/gianni-chepote/revelatio-systematic-funds"
 LINKEDIN_URL = "https://www.linkedin.com/in/gianni-chepote"
@@ -663,11 +663,12 @@ def _style(fig: go.Figure, height: int = 360) -> go.Figure:
 
 def _add_benchmarks(fig: go.Figure, d: dict, index: pd.DatetimeIndex) -> None:
     """Equal-weight market and S&P 500 growth-of-$1 lines over the given dates."""
-    for series, name, color, dash in ((d["bench"], "Equal-weight market", BENCH_GREY, "dash"),
-                                      (d["sp500"], "S&P 500", SP500_TINT, "dot")):
+    # Solid but muted, and drawn first, so the fund's indigo line sits on top.
+    for series, name, color in ((d["bench"], "Equal-weight market", BENCH_GREY),
+                                (d["sp500"], "S&P 500", SP500_TINT)):
         g = (1 + series.reindex(index).fillna(0.0)).cumprod()
         fig.add_trace(go.Scatter(x=g.index, y=g, name=name,
-                                 line=dict(color=color, dash=dash, width=1.6)))
+                                 line=dict(color=color, width=1.5)))
 
 
 PLOTLY_CFG = {"displayModeBar": False}
