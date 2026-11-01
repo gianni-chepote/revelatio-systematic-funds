@@ -936,6 +936,15 @@ def page_funds(d: dict) -> None:
     hero(d, "The offering", "Compare the funds",
          f"{len(FUNDS)} systematic funds, each scored against the equal-weight market "
          "and the S&amp;P 500 over the same days.")
+    # Fund cards first, by family; the full comparison table follows them.
+    for k, family in enumerate(("Combined", "Equity", "Crypto")):
+        if k:
+            st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+        section(FAMILY_TITLE[family])
+        _fund_cards(d, [f for f in FUNDS if FAMILY_OF[f] == family])
+
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("All funds side by side")
     rows = [{"Fund": META[f]["name"], "Annual return": m.loc[f, "ann_return"],
              "Annual volatility": m.loc[f, "ann_vol"], "Sharpe": m.loc[f, "sharpe"],
              "Max drawdown": m.loc[f, "max_drawdown"],
@@ -956,10 +965,6 @@ def page_funds(d: dict) -> None:
                 "S&amp;P 500 via SPY with dividends. A fund beats a benchmark when its "
                 "Sharpe ratio is higher over the same days.</p>",
                 unsafe_allow_html=True)
-    for family in ("Combined", "Equity", "Crypto"):
-        st.markdown("<hr class='rule'>", unsafe_allow_html=True)
-        section(FAMILY_TITLE[family])
-        _fund_cards(d, [f for f in FUNDS if FAMILY_OF[f] == family])
 
 
 def _fund_cards(d: dict, funds: list[str]) -> None:
