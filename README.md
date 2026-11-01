@@ -37,7 +37,7 @@ results/ - those ARE committed.
 
 This folder is its own GitHub repo, independent of fins-agent. Your AI agent can run
 the check and push the repo; the browser deploy is yours (it needs your login). See
-PROJECT_BRIEF.md Appendix D and docs/STUDENT_DEPLOY.md (in this folder). In short:
+PROJECT_BRIEF.md Appendix D. In short:
 
     python scripts/check_handin.py        # your agent can run this
     # commit your precomputed app artifacts under results/ (the app reads them)

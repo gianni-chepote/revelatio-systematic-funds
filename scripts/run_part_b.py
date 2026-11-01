@@ -10,7 +10,7 @@ The script self-verifies as Part A did: it prints the counts that matter beside
 their expected values from context/DATA_GUIDE.md and exits non-zero on drift, so
 a clean run is itself the evidence that the foundation is current.
 
-Build order (BUILD_PLAN.md):
+Build order:
   Step 1  data foundation  -> results/data/combined_returns_panel.csv   [DONE]
   Step 2  funds + backtest -> results/data/fund_returns.csv, fund_weights.csv
   Step 3  fact-sheet stats -> results/tables/performance_metrics.csv + figures
