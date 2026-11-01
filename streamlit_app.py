@@ -46,6 +46,25 @@ BENCH_GREY = "#7C80A6"     # equal-weight market line
 SP500_TINT = "#D9C58F"     # S&P 500 line - muted gold, distinct from the accent
 FONT = "Poppins"
 REPO_URL = "https://github.com/gianni-chepote/revelatio-systematic-funds"
+LINKEDIN_URL = "https://www.linkedin.com/in/gianni-chepote"
+AUTHOR = {"name": "Gianni Paolo Chepote Viluce", "initials": "GPCV",
+          "lines": ["Master of Finance, UNSW Sydney · Class of 2027",
+                    "Wealth management &amp; financial planning · Law graduate"]}
+GITHUB_SVG = ("<svg viewBox='0 0 16 16' aria-hidden='true'><path d='M8 0C3.58 0 0 3.58 0 "
+              "8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01"
+              ".37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01"
+              " 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-"
+              ".89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2"
+              ".82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1"
+              ".16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73"
+              ".54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42"
+              "-3.58-8-8-8z'/></svg>")
+LINKEDIN_SVG = ("<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M20.45 20.45h-3.56"
+                "v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41"
+                "v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43"
+                "a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"
+                "M22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78"
+                "-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z'/></svg>")
 
 # Holdings colours, the bright dark-mode set from How's My Portfolio. Colour follows
 # the sector, never its rank, so a sector looks the same on every fund page.
@@ -217,11 +236,20 @@ def inject_css() -> None:
        wrapper is what must stick; the header itself carries the look. */
     [data-testid="stLayoutWrapper"]:has(> .st-key-site_header) {{position:sticky; top:0;
       z-index:1000;}}
-    .st-key-site_header {{position:relative; padding:0.7rem 0;
-      background:rgba(7,7,31,0.78); backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-      box-shadow:0 0 0 100vmax rgba(7,7,31,0.78), 0 1px 0 0 rgba(255,255,255,0.06);
-      clip-path:inset(0 -100vmax -1px);}}
+    .st-key-site_header {{position:relative; padding:0.7rem 0; overflow:visible;}}
+    /* full-bleed translucent band behind the header; a pseudo-element rather than
+       box-shadow + clip-path, so the author drop-down can overflow below it */
+    .st-key-site_header::before {{content:""; position:absolute; top:0; bottom:0;
+      left:-100vmax; right:-100vmax; z-index:-1; background:rgba(7,7,31,0.78);
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,0.06);}}
+    .st-key-site_header [data-testid="stColumn"],
+    .st-key-site_header [data-testid="stHorizontalBlock"],
+    .st-key-site_header .stMarkdown, .st-key-site_header [data-testid="stElementContainer"]
+      {{overflow:visible !important;}}
+    /* Streamlit's -1rem markdown margin makes the row mis-centre the pill */
+    .st-key-site_header [data-testid="stMarkdownContainer"] {{margin-bottom:0 !important;}}
+    .st-key-site_header [data-testid="stMarkdownContainer"] p {{margin:0 !important;}}
     .st-key-site_header [data-testid="stHorizontalBlock"] {{flex-wrap:wrap !important;
       align-items:center; gap:0.2rem 1.6rem !important;}}
     .st-key-site_header [data-testid="stColumn"] {{flex:0 0 auto !important;
@@ -230,12 +258,63 @@ def inject_css() -> None:
     .wordmark {{font-weight:700; font-size:1.3rem; letter-spacing:-0.01em;
       color:var(--ink); margin-right:1.2rem; white-space:nowrap;}}
     .wordmark span {{color:var(--accent);}}
-    a.gh-pill {{display:inline-flex; align-items:center; gap:0.45rem;
+    a.gh-pill, summary.gh-pill {{display:inline-flex; align-items:center; gap:0.45rem;
       background:var(--accent); color:#fff !important; padding:0.45rem 1.05rem;
       border-radius:999px; font-weight:500; font-size:0.82rem; text-decoration:none;
       white-space:nowrap; transition:background .2s ease, transform .2s ease;}}
-    a.gh-pill:hover {{background:var(--accent-dk); transform:translateY(-1px);}}
+    a.gh-pill:hover, summary.gh-pill:hover {{background:var(--accent-dk);
+      transform:translateY(-1px);}}
+
+    /* author drop-down and card */
+    .author-menu {{position:relative; display:flex; flex-direction:column;
+      align-items:flex-end; margin:0;}}
+    .author-menu summary {{list-style:none; cursor:pointer; user-select:none;}}
+    .author-menu summary::-webkit-details-marker {{display:none;}}
+    .author-menu .chev {{font-size:0.7rem; transition:transform .2s ease;}}
+    .author-menu[open] .chev {{transform:rotate(180deg);}}
+    .author-menu > .author-card {{position:absolute; right:0; top:calc(100% + 0.7rem);
+      width:430px; z-index:2000; box-shadow:0 18px 50px rgba(0,0,0,0.55);
+      animation:pop .18s ease;}}
+    @keyframes pop {{from {{opacity:0; transform:translateY(-6px);}}
+                    to {{opacity:1; transform:none;}}}}
+    .author-card {{background:var(--panel); border:1px solid var(--line-accent);
+      border-radius:20px; padding:1.3rem 1.3rem 1.2rem; text-align:left;}}
+    .author-top {{display:flex; gap:0.9rem; align-items:center;}}
+    .avatar {{flex:none; width:56px; height:56px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(145deg, var(--accent), #3B47B8); color:#fff;
+      font-weight:600; font-size:0.85rem; letter-spacing:0.04em;}}
+    .author-card .nb {{white-space:nowrap;}}
+    .author-name {{font-weight:600; font-size:1.02rem; color:var(--ink); line-height:1.3;}}
+    .author-card p {{margin:0.15rem 0 0 !important; color:var(--muted); font-size:0.82rem;
+      line-height:1.45;}}
+    .author-actions {{display:flex; gap:0.5rem; margin-top:1.1rem;}}
+    .author-actions a {{display:inline-flex; align-items:center; justify-content:center;
+      gap:0.45rem; border-radius:999px; padding:0.5rem 1rem; font-size:0.84rem;
+      font-weight:500; text-decoration:none !important; transition:background .2s ease;}}
+    .author-actions svg {{width:15px; height:15px; fill:currentColor;}}
+    .btn-in {{flex:1; background:var(--accent); color:#fff !important;}}
+    .btn-in:hover {{background:var(--accent-dk);}}
+    .btn-gh {{border:1px solid var(--line-accent); color:var(--ink) !important;}}
+    .btn-gh:hover {{background:rgba(91,108,240,0.14);}}
+    /* larger, centred version on About */
+    .author-card.lg {{max-width:560px; margin:0 auto 1.6rem; padding:1.8rem 2rem 1.6rem;
+      text-align:center;}}
+    .author-card.lg .author-top {{flex-direction:column; gap:0.8rem;}}
+    .author-card.lg .avatar {{width:84px; height:84px; font-size:1.15rem;}}
+    .author-card.lg .author-name {{font-size:1.35rem;}}
+    .author-card.lg p {{font-size:0.95rem;}}
+    .author-card.lg .author-actions {{justify-content:center; margin-top:1.4rem;}}
+    .author-card.lg .btn-in {{flex:none; padding:0.6rem 1.4rem;}}
     a.gh-pill svg {{width:15px; height:15px; fill:currentColor;}}
+    @media (max-width: 640px) {{
+      .author-menu {{align-items:flex-start;}}
+      .author-menu > .author-card {{position:static; width:calc(100vw - 2rem);
+        max-width:calc(100vw - 2rem); box-sizing:border-box; margin-top:0.7rem;
+        box-shadow:none;}}
+      .author-card .nb {{white-space:normal;}}
+      .author-actions {{flex-wrap:wrap;}}
+    }}
 
     /* nav items: plain text links, active page in indigo with a thin underline */
     .st-key-site_header .stButton > button,
@@ -722,6 +801,23 @@ def _mood_gradient(n: int = 100) -> list[dict]:
     return [{"range": [100 * k / n, min(100, 100 * (k + 1) / n + 0.8)],
              "color": _mood_color(100 * (k + 0.5) / n), "thickness": 1,
              "line": {"width": 0}} for k in range(n)]
+
+
+def author_card(size: str = "") -> str:
+    """The author card: initials avatar, name, credentials, LinkedIn and GitHub.
+    Shown in the header drop-down and, larger (``size="lg"``), on About."""
+    # keep each " · "-separated part whole, so lines only break between parts
+    lines = "".join("<p>" + " · ".join(f"<span class='nb'>{part}</span>"
+                                        for part in x.split(" · ")) + "</p>"
+                    for x in AUTHOR["lines"])
+    return (f"<div class='author-card {size}'><div class='author-top'>"
+            f"<div class='avatar'>{AUTHOR['initials']}</div><div>"
+            f"<div class='author-name'>{AUTHOR['name']}</div>{lines}</div></div>"
+            f"<div class='author-actions'>"
+            f"<a class='btn-in' href='{LINKEDIN_URL}' target='_blank' rel='noopener'>"
+            f"{LINKEDIN_SVG}Connect on LinkedIn</a>"
+            f"<a class='btn-gh' href='{REPO_URL}' target='_blank' rel='noopener'>"
+            f"{GITHUB_SVG}GitHub</a></div></div>")
 
 
 def section(title: str, eyebrow: str = "") -> None:
@@ -1257,6 +1353,10 @@ def page_about(d: dict) -> None:
         f"<div style='text-align:center;margin-top:1rem'><a class='gh-pill' href='{REPO_URL}' "
         "target='_blank' rel='noopener'>View the code on GitHub</a></div>",
         unsafe_allow_html=True)
+
+    st.markdown("<hr class='rule'>", unsafe_allow_html=True)
+    section("About the author")
+    st.markdown(author_card("lg"), unsafe_allow_html=True)
     st.markdown("<p class='foot' style='text-align:center'>Educational project, not "
                 "investment advice. Past performance is not a reliable indicator of future "
                 "results.</p>", unsafe_allow_html=True)
@@ -1283,16 +1383,7 @@ PAGES = {"Home": page_home, "Funds": page_funds, "Sentiment": page_sentiment,
 
 
 def top_nav() -> None:
-    github = ("<svg viewBox='0 0 16 16' aria-hidden='true'><path d='M8 0C3.58 0 0 3.58 0 "
-              "8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01"
-              ".37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01"
-              " 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-"
-              ".89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2"
-              ".82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1"
-              ".16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73"
-              ".54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42"
-              "-3.58-8-8-8z'/></svg>")
-    # One sticky row: wordmark, the five nav links, then the GitHub credit. The
+    # One sticky row: wordmark, the five nav links, then the author drop-down. The
     # columns are sized by CSS (auto width), so the spec here only sets their count.
     with st.container(key="site_header"):
         cols = st.columns(len(PAGES) + 2, vertical_alignment="center", gap="small")
@@ -1305,9 +1396,10 @@ def top_nav() -> None:
                 st.session_state["page"] = name
                 st.session_state["selected_fund"] = None
                 st.rerun()
-        cols[-1].markdown(f"<a class='gh-pill' href='{REPO_URL}' target='_blank' "
-                          f"rel='noopener'>{github}Made by Gianni Paolo Chepote Viluce</a>",
-                          unsafe_allow_html=True)
+        # Click (not hover) so it also works on phones; plain HTML, no rerun.
+        cols[-1].markdown(f"<details class='author-menu'><summary class='gh-pill'>"
+                          f"Made by {AUTHOR['name']}<span class='chev'>▾</span></summary>"
+                          f"{author_card()}</details>", unsafe_allow_html=True)
 
 
 def main() -> None:
